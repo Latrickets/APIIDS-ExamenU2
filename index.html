@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="cuadro" width="1000px" height="900px"></canvas>
+    
+    <script src="gif.js"></script>
+    <script type="text/javascript">    
+        var canvas = null;
+        var ctx = null;
+        var pressed = false;
+        var player1 = null;
+        var paredes = [];
+        var direccion = '';
+        var score = 0;
+        var speed = 2;
+        var pause = false;
+        var bomberman = new Image;
+        var sound = new Audio;
+        var sound2 = new Audio;
+        var bomba = null;
+        var gifBomba = GIF();
+        var bomb = false;
+        var explo = false;
+        var explosion = [];
+        var imgExplosion = new Image;
+        var tiempo = 0;
+        var vidas = 1;
+
+
+        function generateRandomColor() {
+            var trans = '0.5'; // 50% transparency
+            var color = 'rgba(';
+            for (var i = 0; i < 3; i++) {
+                color += Math.floor(Math.random() * 255) + ',';
+            }
+            color += trans + ')'; // add the transparency
+            return color;
+        }
+        function getRandomInt(max) {
+             return Math.floor(Math.random() * max);
+        }
+        
+        function run(){
+            canvas = document.getElementById('cuadro');
+            ctx = canvas.getContext('2d');
+
+            player1 = new Cuadro(50, 50, 40, 40, "green")        
+            bomba = new Cuadro(100, 200, 40, 40, "green");
+            paredes.push(new Cuadro(0, 0, 40, 700, "gray"));
+            paredes.push(new Cuadro(41, 0, 800, 40, "gray"));
+            paredes.push(new Cuadro(841, 0, 40, 700, "gray"));
+            paredes.push(new Cuadro(40, 660, 800, 40, "gray"));
+            //explosion.push(new Image())
+            
+            //explosion.push(new Cuadro(100, 50, 40, 40, "green"));
+            bomberman.src = 'pj1/bombermanFrente.png';
+            gifBomba.load('NeoBigBomb.gif');
+            
+            imgExplosion.src = 'explosion.png';
+
+            //sound.src = 'coin.mp3';
+            //sound2.src = 'pause.mp3';
+
+            console.log(paredes);
+            
+            paint();
+        }
+        function paint(){
+
+            window.requestAnimationFrame(paint);
+
+            ctx.fillStyle = '#ADD8E6';
+            ctx.fillRect(0,0, 1000, 900);
+            ctx.fillStyle = 'green';
+            ctx.font = '25px serif';
+            ctx.fillText('Score: ' + score, 40,40);
+            
+            //player1.pintar(ctx);
+            if(vidas > 0){
+                ctx.drawImage(bomberman,player1.x, player1.y);
+            }
+            
+            if(bomb == true){
+                tiempo++;
+                if(tiempo > 380){
+                    console.log(tiempo);
+                    explo = true
+                    bomb = false;
+                    tiempo = 0;
+                }
+                ctx.drawImage(gifBomba.image, bomba.x, bomba.y);
+                //ctx.drawImage(gifBomba,bomba.x,bomba.y);
+            }
+            if(explo){
+                ctx.drawImage(imgExplosion, bomba.x, bomba.y);
+                ctx.drawImage(imgExplosion, bomba.x+40, bomba.y);
+                ctx.drawImage(imgExplosion, bomba.x-40, bomba.y);
+                ctx.drawImage(imgExplosion, bomba.x, bomba.y+40);
+                ctx.drawImage(imgExplosion, bomba.x, bomba.y-40);
+                if(bomba.se_tocan(player1)){
+                    vidas--;
+                    console.log('perdiste perra');
+                }
+                tiempo++;
+                if(tiempo > 60){
+                    explo = false;
+                }
+            }
+
+            for (let index = 0; index < paredes.length; index++) {
+                paredes[index].pintar(ctx);
+                
+            }
+            if (pause) {
+                ctx.fillStyle = 'rgba(144,238,144,0.7)';
+                ctx.fillRect(0,0, 1000, 900);
+                ctx.font = '50px serif';
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.fillText('Pause', 450, 450);
+                //sound2.play();
+            }else{
+                update();
+
+            }
+
+        }
+        function update(){
+            //cambio de direccion
+            if(direccion == "up"){
+                player1.y -= speed;
+                bomberman.src = 'pj1/bombermanEspalda.png';
+                if (player1.y < 0) {
+                    player1.y = 900;
+                }
+            }
+            if (direccion == "down"){
+                player1.y += speed;
+                bomberman.src = 'pj1/bombermanFrente.png';
+                if (player1.y > 900) {
+                    player1.y = 0;
+                }
+            }
+            if (direccion == "left") {
+                player1.x -= speed;
+                bomberman.src = 'pj1/bombermanladoIzq.png';
+                if (player1.x < 0) {
+                    player1.x = 1000;
+                }
+            }
+            if (direccion == "right") {
+                player1.x += speed;
+                bomberman.src = 'pj1/bombermanladoDer.png';
+                if (player1.x > 1000) {
+                    player1.x = 0;
+                }
+            }
+            
+            //colision con paredes
+            for (let index = 0; index < paredes.length; index++) {
+                
+                if (player1.se_tocan(paredes[index])) {
+                    if(direccion == "up"){
+                        player1.y += speed;
+                    }
+                    if (direccion == "down"){
+                        player1.y -= speed;
+                        
+                    }
+                    if (direccion == "left") {
+                        player1.x += speed;
+                        
+                    }
+                    if (direccion == "right") {
+                        player1.x -= speed;
+                    }
+                }
+            }
+
+            //console.log(tiempo);
+
+        }
+        //objeto base para paredes
+        function Cuadro(x, y, w, h , c){
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.c = c;
+            this.pintar = function(ctx){
+                ctx.fillStyle = this.c;
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+                ctx.strokeRect(this.x, this.y, this.w, this.h);
+            }
+            this.se_tocan = function (target) { 
+            if(this.x < target.x + target.w &&
+                this.x + this.w > target.x && 
+                this.y < target.y + target.h && 
+                this.y + this.h > target.y){
+                    
+                    return true;
+                }
+            };
+        }
+
+        window.requestAnimationFrame = (function () {
+            return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            function (callback) {
+                window.setTimeout(callback, 17);
+            };
+        }());
+
+        //eventos de teclado
+        document.addEventListener('keydown', function(e){
+            //arriba
+            if (e.keyCode == '38') {
+                //super_y -= 10;
+                direccion = 'up';
+                console.log('up');
+            }
+            //abajo
+            if (e.keyCode == '40') {
+                //super_y +=10;
+                direccion = 'down';
+                console.log('down');
+                
+            }
+            //izquierda
+            if (e.keyCode == '37') {
+                //super_x -= 10;
+                direccion = 'left';
+                console.log('left');
+            }
+            //derecha
+            if (e.keyCode == '39') {
+                //super_x += 10;
+                direccion = 'right';
+                console.log('right');
+            }
+            if (e.keyCode == '80') {
+                pause = (pause) ? false : true;
+            }
+            if (e.keyCode == '32') {
+                if (bomb == false){
+                    bomb = true;
+                    bomba.x = player1.x;
+                    bomba.y = player1.y;
+                    tiempo = 0;
+                }
+                
+            }
+        });
+
+
+        window.addEventListener("load", run, false);
+
+        
+
+       
+
+    </script>
+</body>
+</html>
