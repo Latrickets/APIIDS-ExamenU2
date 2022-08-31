@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <canvas id="cuadro" width="1000px" height="900px"></canvas>
+    <canvas id="cuadro" width="750px" height="650px"></canvas>
     
     <script src="gif.js"></script>
     <script type="text/javascript">    
@@ -18,7 +18,7 @@
         var paredes = [];
         var direccion = '';
         var score = 0;
-        var speed = 2;
+        var speed = 3;
         var pause = false;
         var bomberman = new Image;
         var sound = new Audio;
@@ -31,6 +31,12 @@
         var imgExplosion = new Image;
         var tiempo = 0;
         var vidas = 1;
+        var piso = new Image;
+        var pisos = [];
+        var bloques = [];
+        var bloque = new Image;
+        var muritos = [];
+        var muro = new Image;
 
 
         function generateRandomColor() {
@@ -50,23 +56,70 @@
             canvas = document.getElementById('cuadro');
             ctx = canvas.getContext('2d');
 
-            player1 = new Cuadro(50, 50, 40, 40, "green")        
+            player1 = new Cuadro(50, 50, 40, 40, "green");
             bomba = new Cuadro(100, 200, 40, 40, "green");
+            let tamanio = 0;
+            let altura = 0;
+            for(let i = 0; i < 13; i++) {
+                for (let j = 0; j < 15; j++) {
+                    pisos.push(new Cuadro(tamanio, altura, 40, 40, "gray"));
+                    tamanio += 50;
+                }
+                altura += 50;
+                tamanio = 0;
+            }
             paredes.push(new Cuadro(0, 0, 40, 700, "gray"));
-            paredes.push(new Cuadro(41, 0, 800, 40, "gray"));
-            paredes.push(new Cuadro(841, 0, 40, 700, "gray"));
-            paredes.push(new Cuadro(40, 660, 800, 40, "gray"));
+            paredes.push(new Cuadro(40, 0, 940, 40, "gray"));
+            paredes.push(new Cuadro(690, 0, 40, 700, "gray"));
+            paredes.push(new Cuadro(40,590, 940, 40, "gray"));
+
+            
+            for(let i = 0; i < 3; i++){
+                muritos.push(new Cuadro((100 + i*50),100, 40, 40, "gray"))
+                muritos.push(new Cuadro((500 + i*50),100, 40, 40, "gray"))
+                muritos.push(new Cuadro((200 + i*50),200, 40, 40, "gray"))
+                muritos.push(new Cuadro((400 + i*50),200, 40, 40, "gray"))
+                muritos.push(new Cuadro((100 + i*50),500, 40, 40, "gray"))
+            }
+            for(let i = 0; i < 2; i++){
+                //horizontal
+                muritos.push(new Cuadro((300 + (i*100)),100, 40, 40, "gray"))
+                muritos.push(new Cuadro((300 + (i*100)),300, 40, 40, "gray"))
+                muritos.push(new Cuadro((300 + (i*100)),400, 40, 40, "gray"))
+                muritos.push(new Cuadro((300 + (i*100)),500, 40, 40, "gray"))
+                muritos.push(new Cuadro((500 + (i*100)),500, 40, 40, "gray"))
+
+                //vertical
+                muritos.push(new Cuadro(100,(150 + (i*50)), 40, 40, "gray"))
+                muritos.push(new Cuadro(600,(150 + (i*50)), 40, 40, "gray"))
+                muritos.push(new Cuadro(200,(250 + (i*50)), 40, 40, "gray"))
+                
+                muritos.push(new Cuadro(500,(250 + (i*50)), 40, 40, "gray"))
+            }
+            for(let i = 0; i < 4; i++){
+                muritos.push(new Cuadro(100,(300 + (i*50)), 40, 40, "gray"))
+                muritos.push(new Cuadro((500 + (i*50)),400, 40, 40, "gray"))
+            }
+            muritos.push(new Cuadro(200, 400, 40, 40, "gray"));
+            muritos.push(new Cuadro(600, 300, 40, 40, "gray"));
+            
+            bloques.push()
+            
             //explosion.push(new Image())
             
             //explosion.push(new Cuadro(100, 50, 40, 40, "green"));
             bomberman.src = 'pj1/bombermanFrente.png';
+            imgExplosion.src = 'explosion.png';
+            muro.src = 'murito.png';
+            bloque.src = 'bloque.png';
+            piso.src = 'pisito.png';
+
             gifBomba.load('NeoBigBomb.gif');
             
-            imgExplosion.src = 'explosion.png';
 
             //sound.src = 'coin.mp3';
             //sound2.src = 'pause.mp3';
-
+            console.log(pisos)
             console.log(paredes);
             
             paint();
@@ -80,7 +133,17 @@
             ctx.fillStyle = 'green';
             ctx.font = '25px serif';
             ctx.fillText('Score: ' + score, 40,40);
-            
+            for (let i = 0; i < pisos.length; i++) {
+                ctx.drawImage(piso,pisos[i].x, pisos[i].y);
+                if((pisos[i].y == 0) || (pisos[i].x == 0) || (pisos[i].x == 700) || (pisos[i].y == 600)){
+                    ctx.drawImage(muro,pisos[i].x, pisos[i].y);
+                }
+            }
+            for (let i = 0; i < muritos.length; i++) {
+                ctx.drawImage(muro,muritos[i].x, muritos[i].y);
+                
+            }
+
             //player1.pintar(ctx);
             if(vidas > 0){
                 ctx.drawImage(bomberman,player1.x, player1.y);
@@ -98,6 +161,9 @@
                 //ctx.drawImage(gifBomba,bomba.x,bomba.y);
             }
             if(explo){
+                if(tiempo > 60){
+                    explo = false;
+                }
                 ctx.drawImage(imgExplosion, bomba.x, bomba.y);
                 ctx.drawImage(imgExplosion, bomba.x+40, bomba.y);
                 ctx.drawImage(imgExplosion, bomba.x-40, bomba.y);
@@ -105,18 +171,15 @@
                 ctx.drawImage(imgExplosion, bomba.x, bomba.y-40);
                 if(bomba.se_tocan(player1)){
                     vidas--;
-                    console.log('perdiste perra');
+                    console.log('perdiste');
                 }
                 tiempo++;
-                if(tiempo > 60){
-                    explo = false;
-                }
             }
 
-            for (let index = 0; index < paredes.length; index++) {
+            /*for (let index = 0; index < 50; index++) {
                 paredes[index].pintar(ctx);
-                
-            }
+            }*/
+            
             if (pause) {
                 ctx.fillStyle = 'rgba(144,238,144,0.7)';
                 ctx.fillRect(0,0, 1000, 900);
@@ -165,6 +228,24 @@
             for (let index = 0; index < paredes.length; index++) {
                 
                 if (player1.se_tocan(paredes[index])) {
+                    if(direccion == "up"){
+                        player1.y += speed;
+                    }
+                    if (direccion == "down"){
+                        player1.y -= speed;
+                        
+                    }
+                    if (direccion == "left") {
+                        player1.x += speed;
+                        
+                    }
+                    if (direccion == "right") {
+                        player1.x -= speed;
+                    }
+                }
+            }
+            for (let i = 0; i < muritos.length; i++) {
+                if (player1.se_tocan(muritos[i])) {
                     if(direccion == "up"){
                         player1.y += speed;
                     }
