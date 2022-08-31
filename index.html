@@ -45,6 +45,7 @@
         var expAudio = new Audio("explosion-bomba.mp3");
         var winAudio = new Audio("ganador.mp3");
         var loseAudio = new Audio("perder.mp3");
+        var start = true;
 
 
 
@@ -276,6 +277,12 @@
                 ctx.fillStyle = 'rgb(0,0,0)';
                 ctx.fillText('G A N A S T E', 200, 250);
                 winAudio.play();
+            }else if(start){
+                ctx.fillStyle = 'rgba(144,238,144,0.7)';
+                ctx.fillRect(0,0, 1000, 900);
+                ctx.font = '50px serif';
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.fillText('Presiona enter para comenzar', 100, 250);
             }else{
                 update();
                 
@@ -447,8 +454,12 @@
                         tiempo = 0;
                     }    
                 }
-
             }
+            if (e.keyCode == '13') {
+                start = (start) ? false : true;
+                bgAudio.play();
+            }
+            
         });
 
 
