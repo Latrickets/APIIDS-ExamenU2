@@ -7,7 +7,10 @@
     <title>Document</title>
 </head>
 <body>
-    <canvas id="cuadro" width="750px" height="650px"></canvas>
+    
+    <canvas id="cuadro" width="750px" height="650px">
+
+    </canvas>
     
     <script src="gif.js"></script>
     <script type="text/javascript">    
@@ -37,6 +40,12 @@
         var bloque = new Image;
         var muritos = [];
         var muro = new Image;
+        var contador = 0;
+        var bgAudio = new Audio("bomberman-sound.mp3");
+        var expAudio = new Audio("explosion-bomba.mp3");
+        var winAudio = new Audio("ganador.mp3");
+        var loseAudio = new Audio("perder.mp3");
+
 
 
         function generateRandomColor() {
@@ -56,7 +65,7 @@
             canvas = document.getElementById('cuadro');
             ctx = canvas.getContext('2d');
 
-            player1 = new Cuadro(50, 50, 40, 40, "green");
+            player1 = new Cuadro(40, 40, 40, 40, "green");
             bomba = new Cuadro(100, 200, 40, 40, "green");
             let tamanio = 0;
             let altura = 0;
@@ -103,8 +112,50 @@
             muritos.push(new Cuadro(200, 400, 40, 40, "gray"));
             muritos.push(new Cuadro(600, 300, 40, 40, "gray"));
             
-            bloques.push()
+            bloques.push(new Cuadro(200,50, 50, 50, "gray"));
+            bloques.push(new Cuadro(300,50, 50, 50, "gray"));
+            bloques.push(new Cuadro(350,50, 50, 50, "gray"));
+            bloques.push(new Cuadro(450,50, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(250,100, 50, 50, "gray"));
+            bloques.push(new Cuadro(350,100, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(50,150, 50, 50, "gray"));
+            bloques.push(new Cuadro(650,150, 50, 50, "gray"));
+            bloques.push(new Cuadro(50,200, 50, 50, "gray"));
+            bloques.push(new Cuadro(650,200, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(300,250, 50, 50, "gray"));
+            bloques.push(new Cuadro(400,250, 50, 50, "gray"));
+            bloques.push(new Cuadro(550,250, 50, 50, "gray"));
+            bloques.push(new Cuadro(600,250, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(50,300, 50, 50, "gray"));
+            bloques.push(new Cuadro(150,300, 50, 50, "gray"));
+            bloques.push(new Cuadro(250,300, 50, 50, "gray"));
+            bloques.push(new Cuadro(650,300, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(50,350, 50, 50, "gray"));
+            bloques.push(new Cuadro(150,350, 50, 50, "gray"));
+            bloques.push(new Cuadro(200,350, 50, 50, "gray"));
+            bloques.push(new Cuadro(300,350, 50, 50, "gray"));
+            bloques.push(new Cuadro(400,350, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(150,400, 50, 50, "gray"));
+            bloques.push(new Cuadro(450,400, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(300,450, 50, 50, "gray"));
+            bloques.push(new Cuadro(400,450, 50, 50, "gray"));
+            bloques.push(new Cuadro(500,450, 50, 50, "gray"));
+            bloques.push(new Cuadro(600,450, 50, 50, "gray"));
+
+            bloques.push(new Cuadro(250,500, 50, 50, "gray"));
+            bloques.push(new Cuadro(450,500, 50, 50, "gray"));
+            bloques.push(new Cuadro(550,500, 50, 50, "gray"));
             
+            
+            
+
             //explosion.push(new Image())
             
             //explosion.push(new Cuadro(100, 50, 40, 40, "green"));
@@ -118,9 +169,10 @@
             
 
             //sound.src = 'coin.mp3';
-            //sound2.src = 'pause.mp3';
+            sound2.src = 'pause.mp3';
             console.log(pisos)
             console.log(paredes);
+            console.log(bloques);
             
             paint();
         }
@@ -141,7 +193,9 @@
             }
             for (let i = 0; i < muritos.length; i++) {
                 ctx.drawImage(muro,muritos[i].x, muritos[i].y);
-                
+            }
+            for (let i = 0; i < bloques.length; i++) {
+                ctx.drawImage(bloque,bloques[i].x, bloques[i].y);
             }
 
             //player1.pintar(ctx);
@@ -156,6 +210,12 @@
                     explo = true
                     bomb = false;
                     tiempo = 0;
+                    explosion = [];
+                    explosion.push(new Cuadro(bomba.x, bomba.y, 40, 40, "green"));
+                    explosion.push(new Cuadro(bomba.x+40, bomba.y, 40, 40, "green"));
+                    explosion.push(new Cuadro(bomba.x-40, bomba.y, 40, 40, "green"));
+                    explosion.push(new Cuadro(bomba.x, bomba.y+40, 40, 40, "green"));
+                    explosion.push(new Cuadro(bomba.x, bomba.y-40, 40, 40, "green"));
                 }
                 ctx.drawImage(gifBomba.image, bomba.x, bomba.y);
                 //ctx.drawImage(gifBomba,bomba.x,bomba.y);
@@ -164,15 +224,29 @@
                 if(tiempo > 60){
                     explo = false;
                 }
-                ctx.drawImage(imgExplosion, bomba.x, bomba.y);
+                /*ctx.drawImage(imgExplosion, bomba.x, bomba.y);
                 ctx.drawImage(imgExplosion, bomba.x+40, bomba.y);
                 ctx.drawImage(imgExplosion, bomba.x-40, bomba.y);
                 ctx.drawImage(imgExplosion, bomba.x, bomba.y+40);
                 ctx.drawImage(imgExplosion, bomba.x, bomba.y-40);
-                if(bomba.se_tocan(player1)){
-                    vidas--;
-                    console.log('perdiste');
+                */
+                for(let i = 0; i < explosion.length; i++){
+                ctx.drawImage(imgExplosion,explosion[i].x,explosion[i].y);
+                    for(let j = 0; j < bloques.length; j++){
+                        if(explosion[i].se_tocan(bloques[j])){
+                            bloques[j].x = 999;
+                            bloques[j].y = 999;
+                            contador += 1
+                            console.log(contador);
+                        }
+                    }
+                    if(explosion[i].se_tocan(player1)){
+                        vidas--;
+                        console.log('perdiste');
+                    }
+                    
                 }
+                expAudio.play();
                 tiempo++;
             }
 
@@ -185,11 +259,26 @@
                 ctx.fillRect(0,0, 1000, 900);
                 ctx.font = '50px serif';
                 ctx.fillStyle = 'rgb(0,0,0)';
-                ctx.fillText('Pause', 450, 450);
-                //sound2.play();
+                ctx.fillText('Pause', 200, 200);
+                sound2.play();
+
+            }else if(vidas < 1){
+                ctx.fillStyle = 'rgba(144,238,144,0.7)';
+                ctx.fillRect(0,0, 1000, 900);
+                ctx.font = '50px serif';
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.fillText('P E R D I S T E', 200, 250);
+                loseAudio.play();
+            }else if(contador >= 32){
+                ctx.fillStyle = 'rgba(144,238,144,0.7)';
+                ctx.fillRect(0,0, 1000, 900);
+                ctx.font = '50px serif';
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.fillText('G A N A S T E', 200, 250);
+                winAudio.play();
             }else{
                 update();
-
+                
             }
 
         }
@@ -244,6 +333,7 @@
                     }
                 }
             }
+            //colision con muros
             for (let i = 0; i < muritos.length; i++) {
                 if (player1.se_tocan(muritos[i])) {
                     if(direccion == "up"){
@@ -262,7 +352,26 @@
                     }
                 }
             }
-
+            //colision con bloques
+            for (let index = 0; index < bloques.length; index++) {
+                
+                if (player1.se_tocan(bloques[index])) {
+                    if(direccion == "up"){
+                        player1.y += speed;
+                    }
+                    if (direccion == "down"){
+                        player1.y -= speed;
+                        
+                    }
+                    if (direccion == "left") {
+                        player1.x += speed;
+                        
+                    }
+                    if (direccion == "right") {
+                        player1.x -= speed;
+                    }
+                }
+            }
             //console.log(tiempo);
 
         }
@@ -328,14 +437,17 @@
             if (e.keyCode == '80') {
                 pause = (pause) ? false : true;
             }
-            if (e.keyCode == '32') {
-                if (bomb == false){
-                    bomb = true;
-                    bomba.x = player1.x;
-                    bomba.y = player1.y;
-                    tiempo = 0;
+            if(!pause){
+                if (e.keyCode == '32') {
+                    console.log(vidas);
+                    if (bomb == false && explo == false){
+                        bomb = true;
+                        bomba.x = player1.x;
+                        bomba.y = player1.y;
+                        tiempo = 0;
+                    }    
                 }
-                
+
             }
         });
 
